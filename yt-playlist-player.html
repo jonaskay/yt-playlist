@@ -21,15 +21,21 @@
       params="[[_getAjaxParams()]]"
       handle-as="json"
       debounce-duration="300"
+      loading="{{ajaxRequestLoading}}"
       on-response="_handleAjaxResponse"></iron-ajax>
     <div class="playlist">
       <div id="player"></div>
-      <template is="dom-repeat" items=[[items]]>
-        <div>[[_getItemPosition(index)]]</div>
-        <div 
-          class="playlist-item-thumbnail" 
-          style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
-        <div>[[item.snippet.title]]</div>
+      <template is="dom-if" if="[[loading]]">
+        <p>Loading...</p>
+      </template>
+      <template is="dom-if" if="[[!loading]]">
+        <template is="dom-repeat" items=[[items]]>
+          <div>[[_getItemPosition(index)]]</div>
+          <div 
+            class="playlist-item-thumbnail" 
+            style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
+          <div>[[item.snippet.title]]</div>
+        </template>
       </template>
     </div>
   </template>
@@ -45,10 +51,23 @@
           list: String,
           key: String,
           items: Array,
+          iframeAPILoading: {
+            type: Boolean,
+            value: true
+          },
+          loading: {
+            type: Boolean,
+            computed: '_computeLoading(iframeAPILoading, ajaxRequestLoading)'
+          }
         }
       }
 
+      _computeLoading(iframeAPILoading, ajaxRequestLoading) {
+        return (iframeAPILoading || ajaxRequestLoading);
+      }
+
       _handleAPILoad(event) {
+        this.iframeAPILoading = false;
         new event.target.api.Player(this.$.player, {
           height: '169',
           width: '300',
