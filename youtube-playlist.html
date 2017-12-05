@@ -1,15 +1,75 @@
 <link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../yt-iframe-api/yt-iframe-api.html">
 
 <dom-module id="youtube-playlist">
 
   <template>
-    <div>youtube-playlist</div>
+    <style>
+      .playlist-item-thumbnail {
+        background-position: 0 -6px;
+        background-size: 64px 48px;
+        height: 36px;
+        width: 64px;
+      }
+    </style>
+
+    <yt-iframe-api on-api-load="_handleAPILoad"></yt-iframe-api>
+    <iron-ajax
+      auto
+      url="https://www.googleapis.com/youtube/v3/playlistItems"
+      params="[[_getAjaxParams()]]"
+      handle-as="json"
+      debounce-duration="300"
+      on-response="_handleAjaxResponse"></iron-ajax>
+    <div class="playlist">
+      <div id="player"></div>
+      <template is="dom-repeat" items=[[items]]>
+        <div>[[_getItemPosition(index)]]</div>
+        <div 
+          class="playlist-item-thumbnail" 
+          style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
+        <div>[[item.snippet.title]]</div>
+      </template>
+    </div>
   </template>
 
   <script>
     class YouTubePlaylist extends Polymer.Element {
       static get is() {
         return 'youtube-playlist';
+      }
+
+      static get properties() {
+        return {
+          list: String,
+          key: String,
+          items: Array,
+        }
+      }
+
+      _handleAPILoad(event) {
+        new event.target.api.Player(this.$.player, {
+          height: '169',
+          width: '300',
+          playerVars: {
+            list: this.list,
+            listType: 'playlist',
+            showinfo: 0
+          } 
+        });
+      }
+
+      _handleAjaxResponse(event) {
+        this.items = event.detail.response.items;
+      }
+
+      _getAjaxParams() {
+        return { part: 'snippet', maxResults: '50', playlistId: this.list, key: this.key }
+      }
+
+      _getItemPosition(index) {
+        return index + 1;
       }
     }
 
