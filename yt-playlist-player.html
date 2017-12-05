@@ -2,7 +2,7 @@
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../yt-iframe-api/yt-iframe-api.html">
 
-<dom-module id="youtube-playlist">
+<dom-module id="yt-playlist-player">
 
   <template>
     <style>
@@ -35,9 +35,9 @@
   </template>
 
   <script>
-    class YouTubePlaylist extends Polymer.Element {
+    class YTPlaylistPlayer extends Polymer.Element {
       static get is() {
-        return 'youtube-playlist';
+        return 'yt-playlist-player';
       }
 
       static get properties() {
@@ -73,6 +73,6 @@
       }
     }
 
-    customElements.define(YouTubePlaylist.is, YouTubePlaylist);
+    customElements.define(YTPlaylistPlayer.is, YTPlaylistPlayer);
   </script>
 </dom-module>
