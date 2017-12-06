@@ -1,6 +1,7 @@
 <link rel="import" href="bower_components/polymer/polymer-element.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="bower_components/yt-iframe-api/yt-iframe-api.html">
+<link rel="import" href="error-view.html">
 
 <dom-module id="yt-playlist-player">
 
@@ -31,8 +32,7 @@
     <div class="playlist">
       <div id="player"></div>
       <template is="dom-if" if="[[error]]">
-        <p>Error</p>
-        <button on-click="_handleClick">Tap to retry</button>
+        <error-view on-retry="_handleErrorRetry"></error-view>
       </template>
       <template is="dom-if" if="[[!error]]">
         <template is="dom-if" if="[[loading]]">
@@ -93,7 +93,7 @@
         return (iframeAPIError || ajaxRequestError);
       }
 
-      _handleClick(event) {
+      _handleErrorRetry(event) {
         this._reload();
       }
 
