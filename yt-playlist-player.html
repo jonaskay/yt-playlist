@@ -14,7 +14,7 @@
       }
     </style>
 
-    <yt-iframe-api on-api-load="_handleAPILoad"></yt-iframe-api>
+    <yt-iframe-api on-api-load="_handleAPILoad" on-api-error="_handleAPIError"></yt-iframe-api>
     <iron-ajax
       auto
       url="https://www.googleapis.com/youtube/v3/playlistItems"
@@ -22,20 +22,26 @@
       handle-as="json"
       debounce-duration="300"
       loading="{{ajaxRequestLoading}}"
-      on-response="_handleAjaxResponse"></iron-ajax>
+      on-response="_handleAjaxResponse"
+      on-error="_handleAjaxError"></iron-ajax>
     <div class="playlist">
       <div id="player"></div>
-      <template is="dom-if" if="[[loading]]">
-        <p>Loading...</p>
+      <template is="dom-if" if="[[error]]">
+        <p>Error</p>
       </template>
-      <template is="dom-if" if="[[!loading]]">
-        <template is="dom-repeat" items=[[items]]>
-          <div>[[_getItemPosition(index)]]</div>
-          <div 
-            class="playlist-item-thumbnail" 
-            style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
-          <div>[[item.snippet.title]]</div>
+      <template is="dom-if" if="[[!error]]">
+        <template is="dom-if" if="[[loading]]">
+          <p>Loading...</p>
         </template>
+        <template is="dom-if" if="[[!loading]]">
+          <template is="dom-repeat" items=[[items]]>
+            <div>[[_getItemPosition(index)]]</div>
+            <div 
+              class="playlist-item-thumbnail" 
+              style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
+            <div>[[item.snippet.title]]</div>
+          </template>
+        </template>  
       </template>
     </div>
   </template>
@@ -58,12 +64,28 @@
           loading: {
             type: Boolean,
             computed: '_computeLoading(iframeAPILoading, ajaxRequestLoading)'
+          },
+          iframeAPIError: {
+            type: Boolean,
+            value: false
+          },
+          ajaxRequestError: {
+            type: Boolean,
+            value: false
+          },
+          error: {
+            type: Boolean,
+            computed: '_computeError(iframeAPIError, ajaxRequestError)'
           }
         }
       }
 
       _computeLoading(iframeAPILoading, ajaxRequestLoading) {
         return (iframeAPILoading || ajaxRequestLoading);
+      }
+
+      _computeError(iframeAPIError, ajaxRequestError) {
+        return (iframeAPIError || ajaxRequestError);
       }
 
       _handleAPILoad(event) {
@@ -79,8 +101,16 @@
         });
       }
 
+      _handleAPIError(event) {
+        this.iframeAPIError = true;
+      }
+
       _handleAjaxResponse(event) {
         this.items = event.detail.response.items;
+      }
+
+      _handleAjaxError(event) {
+        this.ajaxRequestError = true;
       }
 
       _getAjaxParams() {
