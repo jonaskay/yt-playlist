@@ -17,6 +17,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#2.0.0",
     "yt-iframe-api": "*",
-    "iron-ajax": "^2.0.6"
+    "iron-ajax": "^2.0.6",
+    "yt-iframe-player": "*"
   }
 }
