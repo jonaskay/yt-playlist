@@ -131,16 +131,16 @@
       }
 
       _reload() {
-        this._reloadAPI();
-        this._reloadAjax();
+        this._reloadIFrameAPI();
+        this._reloadAjaxRequest();
       }
 
-      _reloadAPI() {
+      _reloadIFrameAPI() {
         this.iframeAPIError = false;
         this.$.api._loadAPI();
       }
 
-      _reloadAjax() {
+      _reloadAjaxRequest() {
         this.ajaxRequestError = false;
         this.$.ajax.generateRequest();
       }
