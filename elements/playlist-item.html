@@ -1,0 +1,44 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="playlist-item">
+
+  <template>
+    <style>
+      .playlist-item-thumbnail {
+        background-position: 0 -6px;
+        background-size: 64px 48px;
+        height: 36px;
+        width: 64px;
+      }
+    </style>
+
+    <div>[[_getPosition(index)]]</div>
+    <div 
+      class="playlist-item-thumbnail" 
+      style="background-image: url('[[thumbnail]]')"></div>
+    <div>[[title]]</div>
+  </template>
+
+  <script>
+    class PlaylistItem extends Polymer.Element {
+      static get is() {
+        return 'playlist-item';
+      }
+
+      static get properties() {
+        return {
+          index: Number,
+          thumbnail: String,
+          title: String
+        }
+      }
+
+      _getPosition(index) {
+        return index + 1;
+      }
+    }
+
+    customElements.define(PlaylistItem.is, PlaylistItem);
+  </script>
+
+</dom-module>

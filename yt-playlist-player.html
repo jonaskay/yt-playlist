@@ -1,20 +1,12 @@
 <link rel="import" href="bower_components/polymer/polymer-element.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="bower_components/yt-iframe-api/yt-iframe-api.html">
-<link rel="import" href="error-view.html">
+<link rel="import" href="elements/error-view.html">
+<link rel="import" href="elements/playlist-item.html">
 
 <dom-module id="yt-playlist-player">
 
   <template>
-    <style>
-      .playlist-item-thumbnail {
-        background-position: 0 -6px;
-        background-size: 64px 48px;
-        height: 36px;
-        width: 64px;
-      }
-    </style>
-
     <yt-iframe-api
       id="api"
       on-api-load="_handleAPILoad"
@@ -40,11 +32,11 @@
         </template>
         <template is="dom-if" if="[[!loading]]">
           <template is="dom-repeat" items=[[items]]>
-            <div>[[_getItemPosition(index)]]</div>
-            <div 
-              class="playlist-item-thumbnail" 
-              style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
-            <div>[[item.snippet.title]]</div>
+            <playlist-item
+              index="[[index]]"
+              thumbnail="[[item.snippet.thumbnails.default.url]]" 
+              title="[[item.snippet.title]]"
+              on-cue="_handleItemCue"></playlist-item>
           </template>
         </template>  
       </template>
@@ -124,10 +116,6 @@
 
       _getAjaxParams() {
         return { part: 'snippet', maxResults: '50', playlistId: this.list, key: this.key }
-      }
-
-      _getItemPosition(index) {
-        return index + 1;
       }
 
       _reload() {
