@@ -1,6 +1,6 @@
-<link rel="import" href="../polymer/polymer-element.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
-<link rel="import" href="../yt-iframe-api/yt-iframe-api.html">
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="bower_components/yt-iframe-api/yt-iframe-api.html">
 
 <dom-module id="yt-playlist-player">
 
@@ -14,8 +14,12 @@
       }
     </style>
 
-    <yt-iframe-api on-api-load="_handleAPILoad" on-api-error="_handleAPIError"></yt-iframe-api>
+    <yt-iframe-api
+      id="api"
+      on-api-load="_handleAPILoad"
+      on-api-error="_handleAPIError"></yt-iframe-api>
     <iron-ajax
+      id="ajax"
       auto
       url="https://www.googleapis.com/youtube/v3/playlistItems"
       params="[[_getAjaxParams()]]"
@@ -28,6 +32,7 @@
       <div id="player"></div>
       <template is="dom-if" if="[[error]]">
         <p>Error</p>
+        <button on-click="_handleClick">Tap to retry</button>
       </template>
       <template is="dom-if" if="[[!error]]">
         <template is="dom-if" if="[[loading]]">
@@ -88,6 +93,10 @@
         return (iframeAPIError || ajaxRequestError);
       }
 
+      _handleClick(event) {
+        this._reload();
+      }
+
       _handleAPILoad(event) {
         this.iframeAPILoading = false;
         new event.target.api.Player(this.$.player, {
@@ -119,6 +128,21 @@
 
       _getItemPosition(index) {
         return index + 1;
+      }
+
+      _reload() {
+        this._reloadAPI();
+        this._reloadAjax();
+      }
+
+      _reloadAPI() {
+        this.iframeAPIError = false;
+        this.$.api._loadAPI();
+      }
+
+      _reloadAjax() {
+        this.ajaxRequestError = false;
+        this.$.ajax.generateRequest();
       }
     }
 
