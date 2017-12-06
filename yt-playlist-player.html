@@ -2,6 +2,7 @@
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="bower_components/yt-iframe-api/yt-iframe-api.html">
 <link rel="import" href="elements/error-view.html">
+<link rel="import" href="elements/iframe-player.html">
 <link rel="import" href="elements/playlist-item.html">
 
 <dom-module id="yt-playlist-player">
@@ -22,7 +23,7 @@
       on-response="_handleAjaxResponse"
       on-error="_handleAjaxError"></iron-ajax>
     <div class="playlist">
-      <div id="player"></div>
+      <iframe-player id="player" list="[[list]]"></iframe-player>
       <template is="dom-if" if="[[error]]">
         <error-view on-retry="_handleErrorRetry"></error-view>
       </template>
@@ -85,21 +86,18 @@
         return (iframeAPIError || ajaxRequestError);
       }
 
+      _handleItemCue(event) {
+        console.log(event.target.index);
+        console.log(this.$);
+        this.$.player._playVideoAt(event.target.index);
+      }
+
       _handleErrorRetry(event) {
         this._reload();
       }
 
       _handleAPILoad(event) {
         this.iframeAPILoading = false;
-        new event.target.api.Player(this.$.player, {
-          height: '169',
-          width: '300',
-          playerVars: {
-            list: this.list,
-            listType: 'playlist',
-            showinfo: 0
-          } 
-        });
       }
 
       _handleAPIError(event) {

@@ -12,11 +12,13 @@
       }
     </style>
 
-    <div>[[_getPosition(index)]]</div>
-    <div 
-      class="playlist-item-thumbnail" 
-      style="background-image: url('[[thumbnail]]')"></div>
-    <div>[[title]]</div>
+    <div on-click="_handleClick">
+      <div>[[_getPosition(index)]]</div>
+      <div 
+        class="playlist-item-thumbnail" 
+        style="background-image: url('[[thumbnail]]')"></div>
+      <div>[[title]]</div>    
+    </div>
   </template>
 
   <script>
@@ -35,6 +37,10 @@
 
       _getPosition(index) {
         return index + 1;
+      }
+
+      _handleClick(event) {
+        this.dispatchEvent(new CustomEvent('cue', { bubbles: true, composed: true }))
       }
     }
 

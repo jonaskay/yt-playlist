@@ -1,0 +1,44 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/yt-iframe-api/yt-iframe-api.html">
+
+<dom-module id="iframe-player">
+  
+  <template>
+    <yt-iframe-api id="api" on-api-load="_handleAPILoad"></yt-iframe-api>
+    <div id="player"></div>
+  </template>
+
+  <script>
+    class IFramePlayer extends Polymer.Element {
+      static get is() {
+        return 'iframe-player';
+      }
+
+      static get properties() {
+        return {
+          list: String,
+          player: Object
+        }
+      }
+
+      _handleAPILoad(event) {
+        this.player = new event.target.api.Player(this.$.player, {
+          height: '169',
+          width: '300',
+          playerVars: {
+            list: this.list,
+            listType: 'playlist',
+            showinfo: 0
+          } 
+        });
+      }
+
+      _playVideoAt(index) {
+        this.player.playVideoAt(index);
+      }      
+    }
+
+    customElements.define(IFramePlayer.is, IFramePlayer);
+  </script>
+
+</dom-module>
