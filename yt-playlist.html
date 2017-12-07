@@ -1,11 +1,12 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../paper-styles/color.html">
 <link rel="import" href="../paper-styles/typography.html">
 <link rel="import" href="../paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="../yt-iframe-api/yt-iframe-api.html">
 <link rel="import" href="../yt-iframe-player/yt-iframe-player.html">
-<link rel="import" href="elements/error-view.html">
+<link rel="import" href="yt-playlist-error-icons.html">
 <link rel="import" href="yt-playlist-menu.html">
 
 <dom-module id="yt-playlist">
@@ -25,6 +26,35 @@
         padding-top: 169px;
         position: relative;
         width: 300px;
+      }
+
+      .playlist-error {
+        background: #000;
+        bottom: 0;
+        content: '';
+        cursor: pointer;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+
+      .playlist-error:active, .playlist-error:hover .playlist-error-content {
+        color: rgba(255,255,255,var(--light-primary-opacity));
+      }
+
+      .playlist-error-content {
+        @apply --paper-font-body1;
+
+        color: rgba(255,255,255,var(--light-secondary-opacity));
+        position: absolute;
+        text-align: center;
+        top: 132px;
+        width: 100%;
+      }
+
+      .playlist-error-icon {
+        margin-bottom: 10px;
       }
 
       .playlist-spinner-backdrop {
@@ -140,7 +170,16 @@
         id="menu"
         on-selected-item-changed="_handleSelectedItemChanged">
         <template is="dom-if" if="[[error]]">
-          <error-view on-retry="_handleErrorRetry"></error-view>
+          <div class="playlist-error" on-click="_handleClick">
+            <div class="playlist-error-content">
+              <div class="playlist-error-icon">
+                <iron-icon icon="yt-playlist-error-icons:error-outline"></iron-icon>            
+              </div>
+              Something went wrong
+              <br />
+              Tap to retry
+            </div>                           
+          </div>
         </template>
         <template is="dom-if" if="[[!error]]">
           <template is="dom-if" if="[[loading]]">
@@ -225,7 +264,7 @@
         }
       }
 
-      _handleErrorRetry(event) {
+      _handleClick(event) {
         this._reload();
       }
 
