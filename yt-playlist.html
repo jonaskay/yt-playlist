@@ -7,7 +7,7 @@
 <link rel="import" href="elements/error-view.html">
 <link rel="import" href="yt-playlist-menu.html">
 
-<dom-module id="yt-playlist-player">
+<dom-module id="yt-playlist">
 
   <template>
     <style>
@@ -146,9 +146,9 @@
   </template>
 
   <script>
-    class YTPlaylistPlayer extends Polymer.Element {
+    class YTPlaylist extends Polymer.Element {
       static get is() {
-        return 'yt-playlist-player';
+        return 'yt-playlist';
       }
 
       static get properties() {
@@ -257,6 +257,6 @@
       }
     }
 
-    customElements.define(YTPlaylistPlayer.is, YTPlaylistPlayer);
+    customElements.define(YTPlaylist.is, YTPlaylist);
   </script>
 </dom-module>
