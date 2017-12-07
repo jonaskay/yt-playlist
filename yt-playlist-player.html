@@ -26,7 +26,8 @@
       <yt-iframe-player id="player" 
         width="300" 
         height="169" 
-        player-vars="[[iframePlayerVars]]"></yt-iframe-player>
+        player-vars="[[iframePlayerVars]]"
+        on-state-change="_handleIFramePlayerStateChange"></yt-iframe-player>
       <template is="dom-if" if="[[error]]">
         <error-view on-retry="_handleErrorRetry"></error-view>
       </template>
@@ -37,9 +38,11 @@
         <template is="dom-if" if="[[!loading]]">
           <template is="dom-repeat" items=[[items]]>
             <playlist-item
+              id="playlist-item-[[index]]"
               index="[[index]]"
               thumbnail="[[item.snippet.thumbnails.default.url]]" 
               title="[[item.snippet.title]]"
+              selected="[[_isFirstItem(index)]]"
               on-cue="_handleItemCue"></playlist-item>
           </template>
         </template>  
@@ -81,6 +84,11 @@
           error: {
             type: Boolean,
             computed: '_computeError(iframeAPIError, ajaxRequestError)'
+          },
+          playlistIndex: {
+            type: Number,
+            value: 0,
+            observer: '_playlistIndexChanged'
           }
         }
       }
@@ -97,8 +105,13 @@
         return (iframeAPIError || ajaxRequestError);
       }
 
+      _playlistIndexChanged(newVal, oldVal) {
+        this.shadowRoot.querySelector('#playlist-item-' + oldVal).selected = false;
+        this.shadowRoot.querySelector('#playlist-item-' + newVal).selected = true;
+      }
+
       _handleItemCue(event) {
-        this.$.player.player.playVideoAt(event.target.index);
+        this.$.player.player.playVideoAt(event.detail);
       }
 
       _handleErrorRetry(event) {
@@ -121,8 +134,16 @@
         this.ajaxRequestError = true;
       }
 
+      _handleIFramePlayerStateChange(event) {
+        this.playlistIndex = this.$.player.player.getPlaylistIndex();
+      }
+
       _getAjaxParams() {
         return { part: 'snippet', maxResults: '50', playlistId: this.list, key: this.key }
+      }
+
+      _isFirstItem(index) {
+        return index == 0;
       }
 
       _reload() {
