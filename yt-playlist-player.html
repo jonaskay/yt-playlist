@@ -95,10 +95,6 @@
       }
     </style>
     
-    <yt-iframe-api
-      id="api"
-      on-api-load="_handleAPILoad"
-      on-api-error="_handleAPIError"></yt-iframe-api>
     <iron-ajax
       id="ajax"
       auto
@@ -116,7 +112,9 @@
         width="300" 
         height="169" 
         player-vars="[[iframePlayerVars]]"
-        on-state-change="_handleIFramePlayerStateChange"></yt-iframe-player>
+        on-ready="_handlePlayerReady"
+        on-state-change="_handleIFramePlayerStateChange"
+        on-iframe-api-error="_handleIFrameAPIError"></yt-iframe-player>
       <yt-playlist-menu
         id="menu"
         on-selected-item-changed="_handleSelectedItemChanged">
@@ -162,13 +160,13 @@
             type: Object,
             computed: '_computeIFramePlayerVars(list)'
           },
-          iframeAPILoading: {
+          iframePlayerReady: {
             type: Boolean,
-            value: true
+            value: false
           },
           loading: {
             type: Boolean,
-            computed: '_computeLoading(iframeAPILoading, ajaxRequestLoading)'
+            computed: '_computeLoading(iframePlayerReady, ajaxRequestLoading)'
           },
           iframeAPIError: {
             type: Boolean,
@@ -189,8 +187,8 @@
         return { list: list, listType: 'playlist', showinfo: 0 };
       }
 
-      _computeLoading(iframeAPILoading, ajaxRequestLoading) {
-        return (iframeAPILoading || ajaxRequestLoading);
+      _computeLoading(iframePlayerReady, ajaxRequestLoading) {
+        return (!iframePlayerReady || ajaxRequestLoading);
       }
 
       _computeError(iframeAPIError, ajaxRequestError) {
@@ -208,11 +206,11 @@
         this._reload();
       }
 
-      _handleAPILoad(event) {
-        this.iframeAPILoading = false;
+      _handlePlayerReady(event) {
+        this.iframePlayerReady = true;
       }
 
-      _handleAPIError(event) {
+      _handleIFrameAPIError(event) {
         this.iframeAPIError = true;
       }
 
@@ -250,7 +248,7 @@
 
       _reloadIFrameAPI() {
         this.iframeAPIError = false;
-        this.$.api._loadAPI();
+        this.$.player.$.api._loadAPI();
       }
 
       _reloadAjaxRequest() {
