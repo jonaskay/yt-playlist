@@ -18,6 +18,8 @@
     "polymer": "Polymer/polymer#2.0.0",
     "yt-iframe-api": "*",
     "iron-ajax": "^2.0.6",
-    "yt-iframe-player": "*"
+    "yt-iframe-player": "*",
+    "iron-menu-behavior": "^2.0.1",
+    "paper-styles": "^2.0.0"
   }
 }

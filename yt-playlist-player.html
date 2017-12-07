@@ -1,13 +1,100 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-styles/color.html">
+<link rel="import" href="../paper-styles/typography.html">
 <link rel="import" href="../yt-iframe-api/yt-iframe-api.html">
 <link rel="import" href="../yt-iframe-player/yt-iframe-player.html">
 <link rel="import" href="elements/error-view.html">
-<link rel="import" href="elements/playlist-item.html">
+<link rel="import" href="yt-playlist-menu.html">
 
 <dom-module id="yt-playlist-player">
 
   <template>
+    <style>
+      a {
+        text-decoration: none;
+      }
+
+      .playlist {
+        @apply --paper-font-common-base;
+
+        background: #000;
+        box-sizing: border-box;
+        height: 380px;
+        padding-top: 169px;
+        position: relative;
+        width: 300px;
+      }
+
+      .playlist-player {
+        background: #000;
+        height: 169px;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+
+      .playlist-item {
+        background: var(--paper-grey-900);
+        box-sizing: border-box;
+        color: rgba(255,255,255,var(--dark-primary-opacity));
+        display: flex;
+        font-size: 11px;
+        padding: 5px 10px;
+      }
+
+      .playlist-item[aria-selected=true] {
+        background: var(--paper-grey-600);
+      }
+
+      .playlist-item[aria-selected=true] .playlist-item-index {
+        display: none;
+      }
+
+      .playlist-item[aria-selected=true] .playlist-item-current {
+        display: inline-block;
+      }
+
+      .playlist-item[aria-selected=true] .playlist-item-thumbnail {
+        border: 2px solid #FF0000;
+        margin: 2px;
+      }
+
+      .playlist-item-index, .playlist-item-current {
+        color: rgba(255,255,255,var(--dark-secondary-opacity));
+        height: 44px;
+        line-height: 44px;
+        min-width: 10px;
+        padding-right: 9px;
+        text-align: center;
+      }
+
+      .playlist-item-current {
+        color: rgba(255,255,255,var(--dark-primary-opacity));
+        display: none;
+      }
+
+      .playlist-item-thumbnail {
+        background-position: 0 -6px;
+        background-size: 64px 48px;
+        display: inline-block;
+        flex: none;
+        height: 36px;
+        margin: 4px;
+        width: 64px;
+      }
+
+      .playlist-item-title {
+        font-size: 120%;
+        line-height: 1.25;
+        max-height: 2.6em;
+        overflow: hidden;
+        padding-left: 9px;
+        padding-top: 5px;
+      }
+    </style>
+    
     <yt-iframe-api
       id="api"
       on-api-load="_handleAPILoad"
@@ -23,29 +110,39 @@
       on-response="_handleAjaxResponse"
       on-error="_handleAjaxError"></iron-ajax>
     <div class="playlist">
-      <yt-iframe-player id="player" 
+      <yt-iframe-player
+        id="player" 
+        class="playlist-player"
         width="300" 
         height="169" 
         player-vars="[[iframePlayerVars]]"
         on-state-change="_handleIFramePlayerStateChange"></yt-iframe-player>
-      <template is="dom-if" if="[[error]]">
-        <error-view on-retry="_handleErrorRetry"></error-view>
-      </template>
-      <template is="dom-if" if="[[!error]]">
-        <template is="dom-if" if="[[loading]]">
-          <p>Loading...</p>
+      <yt-playlist-menu
+        id="menu"
+        on-selected-item-changed="_handleSelectedItemChanged">
+        <template is="dom-if" if="[[error]]">
+          <error-view on-retry="_handleErrorRetry"></error-view>
         </template>
-        <template is="dom-if" if="[[!loading]]">
-          <template is="dom-repeat" items=[[items]]>
-            <playlist-item
-              id="playlist-item-[[index]]"
-              index="[[index]]"
-              thumbnail="[[item.snippet.thumbnails.default.url]]" 
-              title="[[item.snippet.title]]"
-              selected="[[_isFirstItem(index)]]"
-              on-cue="_handleItemCue"></playlist-item>
+        <template is="dom-if" if="[[!error]]">
+          <template is="dom-if" if="[[loading]]">
+            <p>Loading...</p>
           </template>
-        </template>  
+          <template is="dom-if" if="[[!loading]]">
+            <template is="dom-repeat" items=[[items]]>
+              <a
+                class="playlist-item"
+                href="javascript:void(0)"
+                role="menuitem">
+                <div class="playlist-item-index">[[_getItemPosition(index)]]</div>
+                <div class="playlist-item-current">&#x25b6;</div>
+                <div 
+                  class="playlist-item-thumbnail" 
+                  style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
+                <div class="playlist-item-title">[[item.snippet.title]]</div>                
+              </a>      
+            </template>
+          </template>  
+        </yt-playlist-menu>        
       </template>
     </div>
   </template>
@@ -84,11 +181,6 @@
           error: {
             type: Boolean,
             computed: '_computeError(iframeAPIError, ajaxRequestError)'
-          },
-          playlistIndex: {
-            type: Number,
-            value: 0,
-            observer: '_playlistIndexChanged'
           }
         }
       }
@@ -105,13 +197,11 @@
         return (iframeAPIError || ajaxRequestError);
       }
 
-      _playlistIndexChanged(newVal, oldVal) {
-        this.shadowRoot.querySelector('#playlist-item-' + oldVal).selected = false;
-        this.shadowRoot.querySelector('#playlist-item-' + newVal).selected = true;
-      }
-
-      _handleItemCue(event) {
-        this.$.player.player.playVideoAt(event.detail);
+      _handleSelectedItemChanged(event) {
+        var index = this.$.menu.indexOf(this.$.menu.selectedItem) - 1;
+        if (index >= 0) {
+          this.$.player.player.playVideoAt(index);
+        }
       }
 
       _handleErrorRetry(event) {
@@ -135,11 +225,18 @@
       }
 
       _handleIFramePlayerStateChange(event) {
-        this.playlistIndex = this.$.player.player.getPlaylistIndex();
+        var playerIndex = this.$.player.player.getPlaylistIndex()
+        if (playerIndex !== this.$.menu.indexOf(this.$.menu.selectedItem) - 1) {
+          this.$.menu.select(playerIndex + 1);
+        }
       }
 
       _getAjaxParams() {
         return { part: 'snippet', maxResults: '50', playlistId: this.list, key: this.key }
+      }
+
+      _getItemPosition(index) {
+        return index + 1;
       }
 
       _isFirstItem(index) {

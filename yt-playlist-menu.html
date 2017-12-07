@@ -1,0 +1,46 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-menu-behavior/iron-menu-behavior.html">
+<link rel="import" href="../paper-styles/color.html">
+
+<dom-module id="yt-playlist-menu">
+
+  <template>
+    <style> 
+      .playlist-menu {
+        background: var(--paper-grey-900);
+        border-top: 1px solid rgba(255,255,255,var(--light-divider-opacity));
+        box-sizing: border-box;
+        height: 211px;
+        overflow-y: auto;
+      }
+
+      ::-webkit-scrollbar {
+        background: var(--paper-grey-900);
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        height: 56px;
+        background: rgba(255,255,255,var(--light-disabled-opacity));
+      }
+    </style>
+
+    <div class="playlist-menu">        
+      <slot></slot>
+    </div>
+  </template>
+
+  <script>
+    class YTPlaylistMenu extends Polymer.mixinBehaviors([Polymer.IronMenuBehavior], Polymer.Element) {
+      constructor() {
+        super();
+      }
+      static get is() {
+        return 'yt-playlist-menu';
+      }
+    }
+
+    customElements.define(YTPlaylistMenu.is, YTPlaylistMenu);
+  </script>
+
+</dom-module>
