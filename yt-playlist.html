@@ -166,9 +166,6 @@
         on-ready="_handlePlayerReady"
         on-state-change="_handleIFramePlayerStateChange"
         on-iframe-api-error="_handleIFrameAPIError"></yt-iframe-player>
-      <yt-playlist-menu
-        id="menu"
-        on-selected-item-changed="_handleSelectedItemChanged">
         <template is="dom-if" if="[[error]]">
           <div class="playlist-error" on-click="_handleClick">
             <div class="playlist-error-content">
@@ -188,21 +185,24 @@
             <paper-spinner-lite class="playlist-spinner" active></paper-spinner-lite>
           </template>
           <template is="dom-if" if="[[!loading]]">
-            <template is="dom-repeat" items=[[items]]>
-              <a
-                class="playlist-item"
-                href="javascript:void(0)"
-                role="menuitem">
-                <div class="playlist-item-index">[[_getItemPosition(index)]]</div>
-                <div class="playlist-item-current">&#x25b6;</div>
-                <div 
-                  class="playlist-item-thumbnail" 
-                  style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
-                <div class="playlist-item-title">[[item.snippet.title]]</div>                
-              </a>      
-            </template>
+            <yt-playlist-menu
+              id="menu"
+              on-selected-item-changed="_handleSelectedItemChanged">      
+              <template is="dom-repeat" items=[[items]]>
+                <a
+                  class="playlist-item"
+                  href="javascript:void(0)"
+                  role="menuitem">
+                  <div class="playlist-item-index">[[_getItemPosition(index)]]</div>
+                  <div class="playlist-item-current">&#x25b6;</div>
+                  <div 
+                    class="playlist-item-thumbnail" 
+                    style="background-image: url('[[item.snippet.thumbnails.default.url]]')"></div>
+                  <div class="playlist-item-title">[[item.snippet.title]]</div>                
+                </a>      
+              </template>
+            </yt-playlist-menu>        
           </template>  
-        </yt-playlist-menu>        
       </template>
     </div>
   </template>
@@ -258,7 +258,7 @@
       }
 
       _handleSelectedItemChanged(event) {
-        var index = this.$.menu.indexOf(this.$.menu.selectedItem) - 1;
+        var index = event.target.selected;
         if (index >= 0) {
           this.$.player.player.playVideoAt(index);
         }
@@ -286,8 +286,9 @@
 
       _handleIFramePlayerStateChange(event) {
         var playerIndex = this.$.player.player.getPlaylistIndex()
-        if (playerIndex !== this.$.menu.indexOf(this.$.menu.selectedItem) - 1) {
-          this.$.menu.select(playerIndex + 1);
+        var menu = this.shadowRoot.querySelector('yt-playlist-menu');
+        if (playerIndex !== menu.selected) {
+          menu.select(playerIndex);
         }
       }
 
